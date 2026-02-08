@@ -15,7 +15,7 @@ if os.environ.get("OPENAI_API_KEY") is None:
 llm = ChatOpenAI(model_name="gpt-4o-mini", temperature=0)
 
 
-def callLLM(_user_query):
+def callLLM(_system_role, _user_query):
     """
     ユーザークエリを使用してLLM（大規模言語モデル）を呼び出し、レスポンスを返します。
 
@@ -23,24 +23,30 @@ def callLLM(_user_query):
     言語モデルに送信して、アシスタントのレスポンスコンテンツを返します。
 
     Args:
+        _system_role (str): LLMに設定するシステムロール。
         _user_query (str): LLMに送信するユーザーの入力クエリ。
 
     Returns:
         str: LLMのレスポンスメッセージのコンテンツ。
 
     Example:
-        >>> response = callLLM("Pythonとは何ですか？")
+        >>> response = callLLM("Python開発者", "Pythonとは何ですか？")
         >>> print(response)
         # Pythonについてのアシスタントの回答
     """
     messages = [
-        SystemMessage(content="You are a helpful assistant."),
+        SystemMessage(content=f"あなたは{_system_role}の見識を持つ有能なアシスタントです。"),
         HumanMessage(content=_user_query),
     ]
     ai_msg = llm(messages)
     return ai_msg.content
 
-
+st.title("LLM回答生成アプリ")
+st.write("以下のフォームに生成指示を入力してください。")
+system_role = st.radio(
+    "システムロールを選択",
+    options=["Python開発者", "Web開発者", "データサイエンティスト"]
+)
 input_text = st.text_input("生成指示を入力")
 
 if st.button("生成"):
@@ -52,7 +58,7 @@ if st.button("生成"):
     # LangChainを使ってLLMにプロンプトとして渡す
     with st.spinner("LLMを呼び出しています..."):
         try:
-            ai_msg_content = callLLM(input_text)
+            ai_msg_content = callLLM(_system_role=system_role, _user_query=input_text)
         except Exception as e:
             st.error(f"LLMを呼び出し中に問題が発生しました。: {e}")
             st.stop()
