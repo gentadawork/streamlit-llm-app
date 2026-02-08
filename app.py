@@ -38,7 +38,7 @@ def callLLM(_system_role, _user_query):
         SystemMessage(content=f"あなたは{_system_role}の見識を持つ有能なアシスタントです。"),
         HumanMessage(content=_user_query),
     ]
-    ai_msg = llm(messages)
+    ai_msg = llm.invoke(messages)
     return ai_msg.content
 
 st.title("LLM回答生成アプリ")
